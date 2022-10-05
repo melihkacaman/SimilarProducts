@@ -90,4 +90,20 @@ FROM
 		S.*,  
 		ROW_NUMBER() OVER(PARTITION BY S.WebSecenek ORDER BY S.ResimUrl) UrlNo
 	FROM 
-		#SecenekResim S) K
+		#SecenekResim S) K 
+
+CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
+	WebSecenek varchar(50), --41 
+	MarkaKodu varchar(50), 
+	CinsiyetKodu nvarchar(50), 
+	UrunGrubuKodu varchar(50), 
+	Renk varchar(20), 
+	cUrl varchar(200),
+	UrlNo int 
+)
+
+
+-- truncate table PROTO.Melih.Dataset1_SimilarProducts 
+-- drop table PROTO.Melih.Dataset1_SimilarProducts 
+INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
+SELECT * FROM #Dataset1
