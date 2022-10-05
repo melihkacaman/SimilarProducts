@@ -1,6 +1,7 @@
--- eticaret stoï¿½u olan ï¿½rï¿½n gruplarï¿½ 
+-- eticaret stoðu olan ürün gruplarý 
 SELECT 
 	m.SidMagaza, 
+	ml.SidMalzemeMarka,
 	ml.SidMalzemeCinsiyet, 
 	ml.SidMalzemeUrunGrubu, 
 	s.SidSatisSezonDetay,
@@ -16,13 +17,14 @@ WHERE
 	ml.EticaretMi = 1 
 GROUP BY 
 	m.SidMagaza, 
+	ml.SidMalzemeMarka, 
 	ml.SidMalzemeCinsiyet, 
 	ml.SidMalzemeUrunGrubu, 
 	s.SidSatisSezonDetay	
 HAVING 
 	SUM(s.KullanilabilirStok) > 0
 
--- e ticarette stoï¿½u olan ï¿½rï¿½n gruplarï¿½ndaki seï¿½eneklere ait ï¿½rï¿½n gï¿½rselleri 	
+-- e ticarette stoðu olan ürün gruplarýndaki seçeneklere ait ürün görselleri 	
 SELECT 
 	M.WebSecenek, 
 	MM.Kodu MarkaKodu, 
@@ -34,8 +36,8 @@ INTO
 	#SecenekResim 
 FROM 
 	MIX.dim.vMalzeme M 
-	INNER JOIN (SELECT DISTINCT SidMalzemeCinsiyet, SidMalzemeUrunGrubu FROM #GuncelStokEticaretUrunGruplari) GSUG 
-		ON GSUG.SidMalzemeCinsiyet = M.SidMalzemeCinsiyet AND GSUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu
+	INNER JOIN (SELECT DISTINCT SidMalzemeMarka,SidMalzemeCinsiyet, SidMalzemeUrunGrubu FROM #GuncelStokEticaretUrunGruplari) GSUG 
+		ON GSUG.SidMalzemeCinsiyet = M.SidMalzemeCinsiyet AND GSUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu and GSUG.SidMalzemeMarka = M.SidMalzemeMarka
 	INNER JOIN MIX.dim.vMalzemeMarka MM on MM.SidMalzemeMarka = M.SidMalzemeMarka
 	INNER JOIN MIX.dim.vMalzemeCinsiyet MC on MC.SidMalzemeCinsiyet = M.SidMalzemeCinsiyet
 	INNER JOIN MIX.dim.vMalzemeUrunGrubu MUG on MUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu
@@ -47,9 +49,9 @@ GROUP BY
 	MC.Kodu, 
 	MUG.UrunGrubu, 
 	M.Renk,
-	M.ResimAdresi;
+	M.ResimAdresi;  
 
-
+select distinct SidMalzemeCinsiyet, SidMalzemeMarka, SidMalzemeUrunGrubu from MIX.dim.vSecenek
 
 /*
 select distinct 
@@ -61,11 +63,28 @@ INTO
 from 
 	#SecenekResim
 */ 
-/*
-SELECT 
-	K.*, 
-	ROW_NUMBER() OVER() AS sira 
-FROM 
-	(SELECT * FROM #SecenekResim UNION SELECT * FROM #SecenekResim) K 
 
-*/
+-- ikinci fotoðraf için satýrlarý duplicate et. 
+INSERT INTO 
+	#SecenekResim
+SELECT 
+	*
+FROM
+	#SecenekResim 
+
+SELECT 
+	K.WebSecenek, 
+	K.MarkaKodu, 
+	K.CinsiyetKodu, 
+	K.UrunGrubuKodu, 
+	K.Renk, 
+	CASE 
+		WHEN K.UrlNo % 2 = 0 THEN K.UrlNo 
+		ELSE 'NO'
+	END cURL 
+FROM 
+	(SELECT 
+		S.*,  
+		ROW_NUMBER() OVER(PARTITION BY S.WebSecenek ORDER BY S.ResimUrl) UrlNo
+	FROM 
+		#SecenekResim S) K
