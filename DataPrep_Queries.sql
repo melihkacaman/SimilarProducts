@@ -64,7 +64,7 @@ from
 	#SecenekResim
 */ 
 
--- ikinci fotoðraf için satýrlarý duplicate et. 
+-- Ýkinci fotoðraf için satýrlarý duplicate et. 
 INSERT INTO 
 	#SecenekResim
 SELECT 
@@ -79,9 +79,12 @@ SELECT
 	K.UrunGrubuKodu, 
 	K.Renk, 
 	CASE 
-		WHEN K.UrlNo % 2 = 0 THEN K.UrlNo 
-		ELSE 'NO'
-	END cURL 
+		WHEN K.UrlNo % 2 != 0 THEN K.ResimUrl
+		ELSE REPLACE(K.ResimUrl, '-1.jpg', '-2.jpg')
+	END cURL, 
+	K.UrlNo 
+INTO 
+	#Dataset1 
 FROM 
 	(SELECT 
 		S.*,  
