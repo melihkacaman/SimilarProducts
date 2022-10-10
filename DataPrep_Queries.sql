@@ -14,7 +14,8 @@ FROM
 	INNER JOIN MIX.dim.vMalzeme ml on ml.MalzemeKodu=s.MalzemeKodu 
 WHERE 
 	Tarih = DATEADD(DAY,-1,convert(date,GETDATE())) AND 
-	ml.EticaretMi = 1 
+	-- ml.EticaretMi = 1 
+	ml.ResimAdresi is not null  
 GROUP BY 
 	m.SidMagaza, 
 	ml.SidMalzemeMarka, 
@@ -24,7 +25,9 @@ GROUP BY
 HAVING 
 	SUM(s.KullanilabilirStok) > 0
 
+
 -- e ticarette stoðu olan ürün gruplarýndaki seçeneklere ait ürün görselleri 	
+-- stoðu olan seçenek görselleri yetersiz kalmaktadýr. 
 SELECT 
 	M.WebSecenek, 
 	MM.Kodu MarkaKodu, 
@@ -42,7 +45,8 @@ FROM
 	INNER JOIN MIX.dim.vMalzemeCinsiyet MC on MC.SidMalzemeCinsiyet = M.SidMalzemeCinsiyet
 	INNER JOIN MIX.dim.vMalzemeUrunGrubu MUG on MUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu
 WHERE 
-	M.EticaretMi = 1
+	-- M.EticaretMi = 1 
+	M.ResimAdresi is not null 
 GROUP BY 
 	M.WebSecenek, 
 	MM.Kodu, 
@@ -51,6 +55,7 @@ GROUP BY
 	M.Renk,
 	M.ResimAdresi;  
 
+select distinct CinsiyetKodu from #SecenekResim
 select distinct SidMalzemeCinsiyet, SidMalzemeMarka, SidMalzemeUrunGrubu from MIX.dim.vSecenek
 
 /*
@@ -106,4 +111,7 @@ CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
 -- truncate table PROTO.Melih.Dataset1_SimilarProducts 
 -- drop table PROTO.Melih.Dataset1_SimilarProducts 
 INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
-SELECT * FROM #Dataset1
+SELECT * FROM #Dataset1  
+
+select DISTINCT CinsiyetKodu from PROTO.Melih.Dataset1_SimilarProducts S WHERE S.MarkaKodu = '08'
+
