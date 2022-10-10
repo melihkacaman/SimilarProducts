@@ -1,3 +1,14 @@
+/*
+	DATASET: 1 
+	- Cinsiyet, 
+	- Ürün Grubu,
+	- Renk 
+
+	- Tedarik uzantýlý olmayanlar. 
+	- Güncel en az bir stoðu olan Ürün Gruplarýnda 
+	- Bebek Cinsiyetleri çýkartýldý. 
+*/
+
 -- eticaret stoðu olan ürün gruplarý 
 SELECT 
 	m.SidMagaza, 
@@ -28,6 +39,7 @@ HAVING
 
 -- e ticarette stoðu olan ürün gruplarýndaki seçeneklere ait ürün görselleri 	
 -- stoðu olan seçenek görselleri yetersiz kalmaktadýr. 
+-- tedarik uzantýlýlarý sil. 
 SELECT 
 	M.WebSecenek, 
 	MM.Kodu MarkaKodu, 
@@ -46,7 +58,7 @@ FROM
 	INNER JOIN MIX.dim.vMalzemeUrunGrubu MUG on MUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu
 WHERE 
 	-- M.EticaretMi = 1 
-	M.ResimAdresi is not null 
+	M.ResimAdresi is not null and M.ResimAdresi not like '%tedarik%'
 GROUP BY 
 	M.WebSecenek, 
 	MM.Kodu, 
@@ -104,13 +116,9 @@ CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
 	cUrl varchar(200),
 	UrlNo int 
 )
-
-
 -- truncate table PROTO.Melih.Dataset1_SimilarProducts 
 -- drop table PROTO.Melih.Dataset1_SimilarProducts 
-INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
-SELECT * FROM #Dataset1  
-
+-- INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
 
 ----- 
 select DISTINCT CinsiyetKodu, UrunGrubuKodu, Renk from PROTO.Melih.Dataset1_SimilarProducts 
@@ -131,4 +139,5 @@ select S.* INTO #prep2 from PROTO.Melih.Dataset1_SimilarProducts s INNER JOIN #p
 
 select p.CinsiyetKodu, p.UrunGrubuKodu, p.Renk, count(WebSecenek) as seceneksay from #prep2 p
 group by p.CinsiyetKodu, p.UrunGrubuKodu, p.Renk
-order by seceneksay
+order by seceneksay desc 
+
