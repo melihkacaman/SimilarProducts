@@ -55,8 +55,6 @@ GROUP BY
 	M.Renk,
 	M.ResimAdresi;  
 
-select distinct CinsiyetKodu from #SecenekResim
-select distinct SidMalzemeCinsiyet, SidMalzemeMarka, SidMalzemeUrunGrubu from MIX.dim.vSecenek
 
 /*
 select distinct 
@@ -113,5 +111,24 @@ CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
 INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
 SELECT * FROM #Dataset1  
 
-select DISTINCT CinsiyetKodu from PROTO.Melih.Dataset1_SimilarProducts S WHERE S.MarkaKodu = '08'
 
+----- 
+select DISTINCT CinsiyetKodu, UrunGrubuKodu, Renk from PROTO.Melih.Dataset1_SimilarProducts 
+WHERE MarkaKodu = '08'
+
+select DISTINCT  C.Kodu,C.CinsiyetKisaAdi,UG.UrunGrubu,S.Renk, count(*) as classnum INTO #prep1 from PROTO.Melih.Dataset1_SimilarProducts S 
+INNER JOIN MIX.dim.vMalzemeCinsiyet C on C.Kodu = s.CinsiyetKodu 
+INNER JOIN MIX.dim.vMalzemeUrunGrubu UG ON UG.UrunGrubu = S.UrunGrubuKodu 
+WHERE S.MarkaKodu = '08' 
+group by C.Kodu, C.CinsiyetKisaAdi, UG.UrunGrubu, S.Renk
+having count(*) > 200 
+order by classnum desc 
+
+select count(distinct CinsiyetKisaAdi), count(distinct  UrunGrubu), count(distinct Renk) from #prep1 
+select distinct CinsiyetKisaAdi from #prep1
+
+select S.* INTO #prep2 from PROTO.Melih.Dataset1_SimilarProducts s INNER JOIN #prep1 P on P.Kodu = S.CinsiyetKodu and P.UrunGrubu = S.UrunGrubuKodu and P.Renk = S.Renk 
+
+select p.CinsiyetKodu, p.UrunGrubuKodu, p.Renk, count(WebSecenek) as seceneksay from #prep2 p
+group by p.CinsiyetKodu, p.UrunGrubuKodu, p.Renk
+order by seceneksay
