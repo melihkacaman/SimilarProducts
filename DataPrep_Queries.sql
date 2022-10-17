@@ -149,8 +149,7 @@ order by seceneksay desc
 -- bir classta en fazla 3500 fotoðraf var. 
 -- bu durum modelin kurukum esnasýnda deðerlendirilecek. 
 
-
-
-
+INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
+SELECT * FROM #prep2
 
 

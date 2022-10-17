@@ -1,4 +1,6 @@
 import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def get_embeddings(model: tf.keras.Model, data):
@@ -11,3 +13,11 @@ def get_embeddings(model: tf.keras.Model, data):
     """
 
     return None
+
+
+def show_images(idxs, images, row=1):
+    plt.figure(figsize=(15, 12))
+    for i in range(len(idxs)):
+        plt.subplot(row, 3, i + 1)
+        plt.axis('off')
+        plt.imshow(np.array(images[idxs[i]], np.int32))
