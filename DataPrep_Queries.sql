@@ -37,7 +37,7 @@ HAVING
 	SUM(s.KullanilabilirStok) > 0
 
 
--- e ticarette stoðu olan ürün gruplarýndaki seçeneklere ait ürün görselleri 	
+-- e ticarette stoðu olan USPA ERKEK ürün gruplarýndaki seçeneklere ait ürün görselleri 	
 -- stoðu olan seçenek görselleri yetersiz kalmaktadýr. 
 -- tedarik uzantýlýlarý sil. 
 SELECT 
@@ -48,7 +48,7 @@ SELECT
 	M.Renk,
 	M.ResimAdresi ResimUrl 
 INTO 
-	#SecenekResim 
+	#SecenekResim -- drop table #SecenekResim 
 FROM 
 	MIX.dim.vMalzeme M 
 	INNER JOIN (SELECT DISTINCT SidMalzemeMarka,SidMalzemeCinsiyet, SidMalzemeUrunGrubu FROM #GuncelStokEticaretUrunGruplari) GSUG 
@@ -58,7 +58,8 @@ FROM
 	INNER JOIN MIX.dim.vMalzemeUrunGrubu MUG on MUG.SidMalzemeUrunGrubu = M.SidMalzemeUrunGrubu
 WHERE 
 	-- M.EticaretMi = 1 
-	M.ResimAdresi is not null and M.ResimAdresi not like '%tedarik%'
+	M.ResimAdresi is not null and M.ResimAdresi not like '%tedarik%' and
+	M.SidMalzemeMarka = 4 and M.SidMalzemeCinsiyet = 3 and MUG.UstUrunGrubu = '004'
 GROUP BY 
 	M.WebSecenek, 
 	MM.Kodu, 
@@ -95,7 +96,7 @@ SELECT
 	K.Renk, 
 	CASE 
 		WHEN K.UrlNo % 2 != 0 THEN K.ResimUrl
-		ELSE REPLACE(K.ResimUrl, '-1.jpg', '-2.jpg')
+		ELSE REPLACE(K.ResimUrl, '-1.jpg', '-3.jpg')
 	END cURL, 
 	K.UrlNo 
 INTO 
@@ -107,18 +108,24 @@ FROM
 	FROM 
 		#SecenekResim S) K 
 
-CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
-	WebSecenek varchar(50), --41 
-	MarkaKodu varchar(50), 
-	CinsiyetKodu nvarchar(50), 
-	UrunGrubuKodu varchar(50), 
-	Renk varchar(20), 
-	cUrl varchar(200),
-	UrlNo int 
-)
+DELETE FROM #Dataset1 WHERE UrlNo = 1 
+
+--CREATE TABLE PROTO.Melih.Dataset1_SimilarProducts(
+--	WebSecenek varchar(50), --41 
+--	MarkaKodu varchar(50), 
+--	CinsiyetKodu nvarchar(50), 
+--	UrunGrubuKodu varchar(50), 
+--	Renk varchar(20), 
+--	cUrl varchar(200),
+--	UrlNo int 
+--)
 -- truncate table PROTO.Melih.Dataset1_SimilarProducts 
 -- drop table PROTO.Melih.Dataset1_SimilarProducts 
 -- INSERT INTO PROTO.Melih.Dataset1_SimilarProducts 
+
+INSERT INTO PROTO.Melih.Dataset1_SimilarProducts
+SELECT * FROM #Dataset1
+
 
 ----- 
 select DISTINCT CinsiyetKodu, UrunGrubuKodu, Renk from #Dataset1
