@@ -1,4 +1,39 @@
 import pandas as pd 
+import tensorflow as tf 
+import matplotlib.pyplot as plt 
+
+
+def evaluate_img(path: str, model: tf.keras.models.Model, columns: list, dims: tuple = (224, 224, 3), threshold: int = 0.5):
+    """
+    model: model which you want to predict with   
+    path: path of the image 
+    dims: default dim of the image 
+    threshold: the threshold value, up of it 1 otherwise 0 
+    """
+
+    img = tf.io.read_file(path) 
+    img = tf.image.decode_jpeg(img, channels=3) 
+    img = tf.image.resize(img, [dims[0], dims[1]]) 
+    img = tf.reshape(img, [1, dims[0], dims[1], dims[2]]) 
+
+
+    preds = model.predict(img)
+    preds[preds > threshold] = 1 
+    preds[preds <= threshold] = 0  
+
+    result = pd.Series(preds.squeeze()) 
+    result.index = columns 
+
+    return result
+
+def show_image(path, width=224, height=224): 
+    img = tf.io.read_file(path) 
+    img = tf.image.decode_jpeg(img, channels=3)
+    img = tf.image.resize(img, [width, height], antialias=False) 
+    img = img / tf.constant([255], dtype=tf.float32) 
+
+    plt.imshow(img) 
+    plt.show()
 
 def to_csv(dataframe: pd.DataFrame, path:str): 
     """
