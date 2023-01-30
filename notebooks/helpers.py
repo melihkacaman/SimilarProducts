@@ -2,6 +2,26 @@ import pandas as pd
 import tensorflow as tf 
 import matplotlib.pyplot as plt 
 
+def predict(paths: str, model: tf.keras.models.Model, dims: tuple = (224, 224, 3)):
+    """
+    model: model which you want to predict with   
+    path: paths of the image 
+    dims: default dim of the image 
+    """ 
+    result = []  
+    i = 0 
+    for path in paths:
+        img = tf.io.read_file(path) 
+        img = tf.image.decode_jpeg(img, channels=3) 
+        img = tf.image.resize(img, [dims[0], dims[1]]) 
+        img = tf.reshape(img, [1, dims[0], dims[1], dims[2]])
+
+        result.append(model.predict(img, verbose=0)) 
+        i = i + 1 
+        if i % 100 == 0: 
+            print(f"{i} th iteration. You have {len(paths)} inputs. ")
+
+    return result 
 
 def evaluate_img(path: str, model: tf.keras.models.Model, columns: list, dims: tuple = (224, 224, 3), threshold: int = 0.5):
     """
