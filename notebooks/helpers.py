@@ -1,6 +1,8 @@
 import pandas as pd 
 import tensorflow as tf 
 import matplotlib.pyplot as plt 
+import pickle
+
 
 def predict(paths: str, model: tf.keras.models.Model, dims: tuple = (224, 224, 3)):
     """
@@ -71,3 +73,8 @@ def read_csv_with_dtypes(path:str):
     """
     dtypes = pd.read_csv(path, nrows=1).iloc[0].to_dict() 
     return pd.read_csv(path, dtype=dtypes, skiprows=[1]) 
+
+
+def save_with_pickle(path, file):
+    with open(path, 'wb') as handle:
+        pickle.dump(file, handle)
