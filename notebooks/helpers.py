@@ -2,6 +2,7 @@ import pandas as pd
 import tensorflow as tf 
 import matplotlib.pyplot as plt 
 import pickle
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 def predict(paths: str, model: tf.keras.models.Model, dims: tuple = (224, 224, 3)):
@@ -47,6 +48,52 @@ def evaluate_img(path: str, model: tf.keras.models.Model, columns: list, dims: t
     result.index = columns 
 
     return result
+
+def plot_recall_precision_curve(y_hat, y_actual, base_threshold = 0.2):
+    result_all_metrics = [] 
+    while base_threshold < 1:
+        y_hats = y_hat.copy() 
+        y_hats[y_hats >= base_threshold] = 1
+        y_hats[y_hats < base_threshold] = 0 
+
+        result_all_metrics.append({
+            "threshold": base_threshold, 
+            "precision_weighted": round(precision_score(y_actual, y_hats, average="weighted"),2),
+            "recall_weighted": round(recall_score(y_actual, y_hats, average="weighted"),2), 
+            "f1_score_weighted": round(f1_score(y_actual, y_hats, average="weighted"),2)
+        })
+        
+        base_threshold = base_threshold + 0.025
+
+    figure, axis = plt.subplots(1, 4, figsize=(8,8))
+    figure.tight_layout()
+    recalls = [item["recall_weighted"] for item in result_all_metrics] 
+    precisions = [item["precision_weighted"] for item in result_all_metrics] 
+    f1_scores = [item["f1_score_weighted"] for item in result_all_metrics] 
+    thresh = [item["threshold"] for item in result_all_metrics]
+
+    axis[0].plot(recalls, precisions, '-o', c="#d62728")
+    axis[0].set_title("Recall vs Precision")
+    axis[0].set_xlabel("Recall")
+    axis[0].set_ylabel("Precision")
+
+    axis[1].plot(f1_scores, thresh, '-o')
+    axis[1].set_title("F1-Score vs Thresholds")
+    axis[1].set_xlabel("F1-Score")
+    axis[1].set_ylabel("Threshold")
+
+    axis[2].plot(recalls, thresh, '-o', c="cyan")
+    axis[2].set_title("Recall vs Thresholds")
+    axis[2].set_xlabel("Recall")
+    axis[2].set_ylabel("Threshold")
+
+    axis[3].plot(precisions, thresh, '-o', c="purple")
+    axis[3].set_title("Precision vs Thresholds")
+    axis[3].set_xlabel("Precision")
+    axis[3].set_ylabel("Threshold")
+
+    plt.show()
+
 
 def show_image(path, width=224, height=224): 
     img = tf.io.read_file(path) 
