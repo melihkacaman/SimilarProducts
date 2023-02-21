@@ -125,3 +125,26 @@ def read_csv_with_dtypes(path:str):
 def save_with_pickle(path, file):
     with open(path, 'wb') as handle:
         pickle.dump(file, handle)
+
+
+# FOR PRE-PROCESSING
+def row_cleaner(df, after_column=2):
+    idx = [] 
+    for index, row in df.iterrows():
+        if(sum(row[after_column:].values) == 0):
+            idx.append(index)
+    return df[~df.index.isin(idx)] 
+
+def col_cleaner(df, after_column=2):
+    cols = []
+    for col in df.columns[after_column:]:
+        if sum(df[col].values) == 0: 
+            cols.append(col)
+    
+    if len(cols) > 0: 
+        print("Previos shape:", df.shape) 
+        result = df[df.columns[~df.columns.isin(cols)]]
+        print("After shape:", result.shape)
+        return result
+    print("Nothing changed.")
+    return df
