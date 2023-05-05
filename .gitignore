@@ -12,9 +12,11 @@
 *.vsix
 
 # project 
+checkpoints/
 *.png 
 *.jpeg 
 *.jpg 
 *.csv
 *.txt
 *.xlsx
+*.ckpt 
