@@ -22,3 +22,4 @@ checkpoints/
 *.ckpt 
 datasets/big_ds/img_highres.zip
 datasets/big_ds/img_highres/img_highres/.DS_Store
+*.h5
