@@ -21,6 +21,7 @@ def predict(paths: str, model: tf.keras.models.Model, dims: tuple = (224, 224, 3
 
         result.append(model.predict(img, verbose=0)) 
         i = i + 1 
+        print(i)
         if i % 100 == 0: 
             print(f"{i} th iteration. You have {len(paths)} inputs. ")
 
