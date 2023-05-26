@@ -5,7 +5,7 @@ import pickle
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 
-def predict(paths: str, model: tf.keras.models.Model, dims: tuple = (224, 224, 3)):
+def predict(paths: list, model: tf.keras.models.Model, dims: tuple = (224, 224, 3)):
     """
     model: model which you want to predict with   
     path: paths of the image 
